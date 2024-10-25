@@ -1,10 +1,11 @@
 package pe.com.softlite.useexcel.business;
 
-import pe.com.softlite.useexcel.utils.ValidateService;
+import java.net.http.HttpResponse;
+import java.util.List;
 
 public interface TramiteBusiness {
 	
-	public ValidateService registerTramite() throws Exception;
+	public List<HttpResponse<String>> registerTramite() throws Exception;
 	
 	public String getValue();
 

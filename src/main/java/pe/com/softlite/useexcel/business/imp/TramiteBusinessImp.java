@@ -5,13 +5,15 @@ import pe.com.softlite.useexcel.dto.SolicitanteDTO;
 import pe.com.softlite.useexcel.dto.TipoTramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteRegisterDTO;
-import pe.com.softlite.useexcel.utils.ValidateService;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -37,8 +39,11 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	@Value("${excel.input.file.register}")
 	private String inputFileRegister;
 
+	@SuppressWarnings("resource")
 	@Override
-	public ValidateService registerTramite() throws Exception {
+	public List<HttpResponse<String>> registerTramite() throws Exception {
+		
+		List<HttpResponse<String>> listResponse = new ArrayList<>();
 		
 		String excelFilePath = inputPathRegister + inputFileRegister;
 //		String excelFilePath = "D:\\Tools\\Tramite.excel.input\\Register\\Input_registrar_tramite.xlsx";
@@ -105,24 +110,6 @@ public class TramiteBusinessImp implements TramiteBusiness {
 					Cell cellSolicRepresentante   = row.getCell(14);
 					String solicRepresentante     = cellSolicRepresentante!=null ? (String) getValue(cellSolicRepresentante) : null;
 					
-					
-					System.out.println("tramTipoTramite: " + tramTipoTramite + " \n" + 
-									   "tramAsunto: " + tramAsunto + " \n" + 
-									   "tramTipoDocumento: " + tramTipoDocumento + " \n" + 
-									   "tramNroFolio : " + tramNroFolio + " \n" + 
-									   "tramReferencia: " + tramReferencia + " \n" +
-									   "tramObservacion: " + tramObservacion + " \n" +
-									   "solicTipoSolicitante: " + solicTipoSolicitante + " \n" + 
-									   "solicTipoDocumento: " + solicTipoDocumento + " \n" +
-									   "solicNroDocumento: " + solicNroDocumento + " \n" +
-									   "solicNombre: " + solicNombre + " \n" +
-									   "solicApellidoPaterno: " + solicApellidoPaterno + " \n" +
-									   "SolicApellidoMaterno: " + SolicApellidoMaterno + " \n" +
-									   "solicTelefono: " + solicTelefono + " \n" +
-									   "solicCorreo: " + solicCorreo + " \n" + 
-									   "solicRepresentante: " + solicRepresentante
-										);
-										
 					String idTipoTramiteStr = tramTipoTramite.substring(0, tramTipoTramite.indexOf("."));
 					String nombreTipoTramite = tramTipoTramite.substring(tramTipoTramite.indexOf(".")+1);
 					Integer nroFolio = tramNroFolio.intValue();
@@ -130,7 +117,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 					TipoTramiteDTO tipoTramiteDto = new TipoTramiteDTO(Long.valueOf(idTipoTramiteStr), nombreTipoTramite);
 					SolicitanteDTO solicitanteDto = new SolicitanteDTO(solicNroDocumento, solicTipoDocumento, solicTipoSolicitante, solicNombre, solicApellidoPaterno, SolicApellidoMaterno, solicCorreo, solicTelefono, solicRepresentante);
 					
-					TramiteDTO tramiteDto = new TramiteDTO(tramAsunto, tramObservacion, nroFolio, tramReferencia, solicTipoDocumento, tipoTramiteDto, solicitanteDto);
+					TramiteDTO tramiteDto = new TramiteDTO(tramAsunto, tramObservacion, nroFolio, tramReferencia, tramTipoDocumento, tipoTramiteDto, solicitanteDto);
 					TramiteRegisterDTO tramiteRegisterDto = new TramiteRegisterDTO();
 					tramiteRegisterDto.setTramiteDto(tramiteDto);
 					
@@ -146,16 +133,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 						    .build();
 					
 					HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-					
-					System.out.println("\n");
-//					System.out.println(httpResponse.statusCode());
-//					System.out.println(httpResponse.body());
-					System.out.println("url de properti: " + apiUrlSistradocRegister);
-					System.out.println("\n");
-					
-//					Map responseMap = gson.fromJson(httpResponse.body(), HashMap.class);
-//					String mensaje = (String) responseMap.get("mensaje");
-//					System.out.println("DEMO: mensaje. " + mensaje);
+					listResponse.add(httpResponse);
 					
 				}
 				
@@ -169,16 +147,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			e.printStackTrace();
 		}
 		
-		return null;
-	}
-	
-	public static void main(String args[]) {
-		try {
-			new TramiteBusinessImp().registerTramite();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		return listResponse;
 	}
 	
 	private Object getValue(Cell cell) {
