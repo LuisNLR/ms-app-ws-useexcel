@@ -6,13 +6,19 @@ import pe.com.softlite.useexcel.dto.TipoTramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteRegisterDTO;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -22,13 +28,18 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class TramiteBusinessImp implements TramiteBusiness {
+	
+	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessImp.class);
 
 	@Value("${api.ws.sistradoc.register}")
 	private String apiUrlSistradocRegister;
@@ -41,12 +52,14 @@ public class TramiteBusinessImp implements TramiteBusiness {
 
 	@SuppressWarnings("resource")
 	@Override
-	public List<HttpResponse<String>> registerTramite() throws Exception {
+	public List<HttpResponse<String>> readExcelAndRegisterTramites() throws Exception {
+		String correlationId = UUID.randomUUID().toString();
+		LOGGER.info(":::: Proceso Leer excel y registrar tramites. Inicio :::: '{}' ", TramiteBusinessImp.class.getName());
 		
 		List<HttpResponse<String>> listResponse = new ArrayList<>();
 		
 		String excelFilePath = inputPathRegister + inputFileRegister;
-//		String excelFilePath = "D:\\Tools\\Tramite.excel.input\\Register\\Input_registrar_tramite.xlsx";
+//		String excelFilePath = "D:\\Tools\\Tramite.excel\\Input\\Register\\Input_registrar_tramite.xlsx";
 		try {
 			FileInputStream fileInputStream = new FileInputStream(excelFilePath);
 			Workbook workbook = null;
@@ -64,7 +77,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			for(Row row : sheet) {
 				
 				if(fila>0) {
-					
+					LOGGER.info(":::: Proceso Leer excel y registrar tramites. Nro Registro :::: '{}' ", fila);
 					Cell cellTramTipoTramite      = row.getCell(0);
 					String tramTipoTramite        = cellTramTipoTramite!=null  ? (String) getValue(cellTramTipoTramite) : null;
 					
@@ -123,6 +136,8 @@ public class TramiteBusinessImp implements TramiteBusiness {
 					
 					Gson gson = new Gson();
 					
+					LOGGER.info(":::: Proceso Leer excel y registrar tramites. Trama input.  '{}' ", gson.toJson(tramiteRegisterDto));
+					
 					HttpClient httpClient = HttpClient.newHttpClient();
 					HttpRequest request = HttpRequest.newBuilder()
 						    .uri(URI.create(apiUrlSistradocRegister))
@@ -133,6 +148,8 @@ public class TramiteBusinessImp implements TramiteBusiness {
 						    .build();
 					
 					HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+					LOGGER.info(":::: Proceso Leer excel y registrar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
+					
 					listResponse.add(httpResponse);
 					
 				}
@@ -141,12 +158,13 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			}
 			workbook.close();
 			fileInputStream.close();
+			LOGGER.info(":::: Proceso Leer excel y registrar tramites. Total registros :::: '{}' ", fila);
 			
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-		
+		LOGGER.info(":::: Proceso Leer excel y registrar tramites. Final :::: '{}' ", TramiteBusinessImp.class.getName());
 		return listResponse;
 	}
 	
@@ -182,7 +200,77 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	}
 	
 	public String getValue() {
+		LOGGER.info(":::: Proceso DEMO. Inicio :::: '{}' ", TramiteBusinessImp.class.getName());
 		return apiUrlSistradocRegister;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public String generateExcelResponseInsert(List<HttpResponse<String>> listResponse) {
+		
+        try {
+			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
+			Workbook workbook = new XSSFWorkbook();
+	        Sheet sheet = workbook.createSheet("Response");
+	        	        
+	        //Cabecera
+	        String[] cabecera = {"RESULTADO", "CODIGO_TRAMITE", "TIPO TRAMITE", "ASUNTO", 
+	        					 "TIPO DOC", "NRO DOC", "NOMBRE SOLICITANTE"};
+	        Row rowCabecera = sheet.createRow(0);
+	        for(int i=0;i<cabecera.length;i++) {
+	        	rowCabecera.createCell(i).setCellValue(cabecera[i]);
+	        }
+	        
+	        //Lenado de datos
+	        int fila=1;
+	        for(HttpResponse<String>response : listResponse) {
+	        	Map<String, Object> mapResponse = new Gson().fromJson(response.body(), new TypeToken<HashMap<String, Object>>() {}.getType());
+	        	String mensaje = (String) mapResponse.get("mensaje");
+//	        	boolean flagResult = (boolean) mapResponse.get("flag");
+				Map<String, Object> mapData = (Map<String, Object>) mapResponse.get("data");
+	        	String codigoTramite = (String) mapData.get("codigoTramite");
+	        	String asunto = (String) mapData.get("asunto");
+	        	Map<String, Object> mapTipoTramite = (Map<String, Object>) mapData.get("tipoTramiteDto");
+	        	Double idTipoTramite = (Double) mapTipoTramite.get("idTipoTramite");
+	        	String nombreTipoTramite = (String) mapTipoTramite.get("nombreTipoTramite");
+	        	
+	        	Map<String, Object> mapSolicitante = (Map<String, Object>) mapData.get("solicitanteDto");
+	        	String tipoSolicitante = (String) mapSolicitante.get("tipoSolicitante");
+	        	String tipoDocumentoSolicitante = (String) mapSolicitante.get("tipoDocumento");
+	        	String numeroSolicitante = (String) mapSolicitante.get("numeroDocumento");
+	        	String nombreSolicitante = (String) mapSolicitante.get("nombreSolicitante");
+	        	String apellidoPaternoSolicitante = (String) mapSolicitante.get("apellidoPaterno");
+	        	String apellidoMaternoSolicitante = (String) mapSolicitante.get("apellidoMaterno");
+	        	
+	        	String[] data = {mensaje, codigoTramite, idTipoTramite + ". " + nombreTipoTramite, asunto, 
+   					 tipoDocumentoSolicitante, numeroSolicitante, tipoSolicitante.equals("PERSONA")? nombreSolicitante + " " + apellidoPaternoSolicitante + " " + apellidoMaternoSolicitante : nombreSolicitante };
+	        	Row rowFila = sheet.createRow(fila);
+	        	
+	        	for(int i=0;i<data.length;i++) {
+	        		rowFila.createCell(i).setCellValue(data[i]);
+	        		sheet.autoSizeColumn(i);
+		        }
+	        	fila = fila +1;
+	        }
+	        
+	        try {
+				workbook.write(fileOutputStream);
+				workbook.close();
+				fileOutputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        
+	        
+		} catch (FileNotFoundException e) {
+			LOGGER.error(":::: Proceso Generar excel de respuesta de registro de tramite. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+		return "Archivo generado";
 	}
 
 }
