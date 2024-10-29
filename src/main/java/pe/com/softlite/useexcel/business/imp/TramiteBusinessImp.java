@@ -5,6 +5,8 @@ import pe.com.softlite.useexcel.dto.SolicitanteDTO;
 import pe.com.softlite.useexcel.dto.TipoTramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteRegisterDTO;
+import pe.com.softlite.useexcel.utils.Utils;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +15,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,6 +53,12 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	@Value("${excel.input.file.register}")
 	private String inputFileRegister;
 
+	@Value("${excel.output.path.register}")
+	private String outputPathRegister;
+	
+	@Value("${excel.output.file.register}")
+	private String outputFileRegister;
+	
 	@SuppressWarnings("resource")
 	@Override
 	public List<HttpResponse<String>> readExcelAndRegisterTramites() throws Exception {
@@ -206,10 +215,11 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public String generateExcelResponseInsert(List<HttpResponse<String>> listResponse) {
+	public String generateExcelResponseInsert(List<HttpResponse<String>> listResponse) throws IOException {
 		
         try {
-			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
+//			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
+			FileOutputStream fileOutputStream = new FileOutputStream(outputPathRegister + Utils.getNewNameFile(outputFileRegister));
 			Workbook workbook = new XSSFWorkbook();
 	        Sheet sheet = workbook.createSheet("Response");
 	        	        
@@ -221,12 +231,11 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	        	rowCabecera.createCell(i).setCellValue(cabecera[i]);
 	        }
 	        
-	        //Lenado de datos
+	        //Llenado de datos
 	        int fila=1;
 	        for(HttpResponse<String>response : listResponse) {
 	        	Map<String, Object> mapResponse = new Gson().fromJson(response.body(), new TypeToken<HashMap<String, Object>>() {}.getType());
 	        	String mensaje = (String) mapResponse.get("mensaje");
-//	        	boolean flagResult = (boolean) mapResponse.get("flag");
 				Map<String, Object> mapData = (Map<String, Object>) mapResponse.get("data");
 	        	String codigoTramite = (String) mapData.get("codigoTramite");
 	        	String asunto = (String) mapData.get("asunto");
@@ -253,14 +262,14 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	        	fila = fila +1;
 	        }
 	        
-	        try {
+//	        try {
 				workbook.write(fileOutputStream);
 				workbook.close();
 				fileOutputStream.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	        
 	        
 		} catch (FileNotFoundException e) {
