@@ -11,7 +11,7 @@ public class Utils {
 	public static String getNewNameFile(String oldNameFile) {
 		Date fechaActual = new Date();
     	String fechaFormateada = new SimpleDateFormat("yyyyMMdd_HHmmss").format(fechaActual);
-    	return oldNameFile.replace(".xlsx", "_"+fechaFormateada + ".xlsx");
+    	return oldNameFile.replace(".xlsx", "_" + fechaFormateada + ".xlsx");
 	}
 
 }

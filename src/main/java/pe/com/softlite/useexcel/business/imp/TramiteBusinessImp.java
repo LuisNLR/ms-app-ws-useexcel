@@ -15,7 +15,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -160,9 +159,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 					LOGGER.info(":::: Proceso Leer excel y registrar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
 					
 					listResponse.add(httpResponse);
-					
 				}
-				
 				fila = fila +1;
 			}
 			workbook.close();
@@ -261,22 +258,13 @@ public class TramiteBusinessImp implements TramiteBusiness {
 		        }
 	        	fila = fila +1;
 	        }
-	        
-//	        try {
-				workbook.write(fileOutputStream);
-				workbook.close();
-				fileOutputStream.close();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-	        
+			workbook.write(fileOutputStream);
+			workbook.close();
+			fileOutputStream.close();
 	        
 		} catch (FileNotFoundException e) {
 			LOGGER.error(":::: Proceso Generar excel de respuesta de registro de tramite. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
         
 		return "Archivo generado";
