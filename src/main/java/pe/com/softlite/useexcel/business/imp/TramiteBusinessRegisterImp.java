@@ -16,15 +16,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -39,9 +34,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-public class TramiteBusinessImp implements TramiteBusiness {
+public class TramiteBusinessRegisterImp implements TramiteBusiness {
 	
-	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessImp.class);
+	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessRegisterImp.class);
+	
+	private String correlationId;
 
 	@Value("${api.ws.sistradoc.register}")
 	private String apiUrlSistradocRegister;
@@ -60,9 +57,8 @@ public class TramiteBusinessImp implements TramiteBusiness {
 	
 	@SuppressWarnings("resource")
 	@Override
-	public List<HttpResponse<String>> readExcelAndRegisterTramites() throws Exception {
-		String correlationId = UUID.randomUUID().toString();
-		LOGGER.info(":::: Proceso Leer excel y registrar tramites. Inicio :::: '{}' ", TramiteBusinessImp.class.getName());
+	public List<HttpResponse<String>> readExcelAndProcesingTramites() throws Exception {
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
 		List<HttpResponse<String>> listResponse = new ArrayList<>();
 		
@@ -85,66 +81,42 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			for(Row row : sheet) {
 				
 				if(fila>0) {
-					LOGGER.info(":::: Proceso Leer excel y registrar tramites. Nro Registro :::: '{}' ", fila);
-					Cell cellTramTipoTramite      = row.getCell(0);
-					String tramTipoTramite        = cellTramTipoTramite!=null  ? (String) getValue(cellTramTipoTramite) : null;
-					
-					Cell cellTramAsunto           = row.getCell(1);
-					String tramAsunto             = cellTramAsunto!=null ? (String) getValue(cellTramAsunto) : null;
-					
-					Cell cellTramTipoDocumento    = row.getCell(2);
-					String tramTipoDocumento      = cellTramTipoDocumento!=null ? (String) getValue(cellTramTipoDocumento) : null;
-					
-					Cell cellTramNroFolio         = row.getCell(3);
-					Double tramNroFolio           = cellTramNroFolio!=null ? (Double) getValue(cellTramNroFolio) : null; 
-					
-					Cell cellTramReferencia       = row.getCell(4);
-					String tramReferencia         = cellTramReferencia!=null ? (String) getValue(cellTramReferencia) : null;
-					
-					Cell cellTramObservacion      = row.getCell(5);
-					String tramObservacion        = cellTramObservacion!=null ? (String) getValue(cellTramObservacion) : null;
-					
-					Cell cellSolicTipoSolicitante = row.getCell(6);
-					String solicTipoSolicitante   = cellSolicTipoSolicitante!=null ? (String) getValue(cellSolicTipoSolicitante) : null;
-					
-					Cell cellSolicTipoDocumento   = row.getCell(7);
-					String solicTipoDocumento     = cellSolicTipoDocumento!=null ? (String) getValue(cellSolicTipoDocumento) : null;
-					
-					Cell cellSolicNroDocumento    = row.getCell(8);
-					String solicNroDocumento      = cellSolicNroDocumento!=null ? cellSolicNroDocumento.getStringCellValue() : null;
-					
-					Cell cellSolicNombre          = row.getCell(9);
-					String solicNombre            = cellSolicNombre!=null ? (String) getValue(cellSolicNombre) : null;
-					
-					Cell cellSolicApellidoPaterno = row.getCell(10);
-					String solicApellidoPaterno   = cellSolicApellidoPaterno!=null ? (String) getValue(cellSolicApellidoPaterno) : null;
-					
-					Cell cellSolicApellidoMaterno = row.getCell(11);
-					String SolicApellidoMaterno   = cellSolicApellidoMaterno!=null ? (String) getValue(cellSolicApellidoMaterno) : null;
-					
-					Cell cellSolicTelefono        = row.getCell(12);
-					String solicTelefono          = cellSolicTelefono!=null ? (String) getValue(cellSolicTelefono) : null;
-					
-					Cell cellSolicCorreo          = row.getCell(13);
-					String solicCorreo            = cellSolicCorreo!=null ? (String) getValue(cellSolicCorreo) : null;
-					
-					Cell cellSolicRepresentante   = row.getCell(14);
-					String solicRepresentante     = cellSolicRepresentante!=null ? (String) getValue(cellSolicRepresentante) : null;
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Nro Registro :::: '{}' ", fila);
+					String tramTipoTramite        = (String) Utils.getValue(row.getCell(0));
 					
 					String idTipoTramiteStr = tramTipoTramite.substring(0, tramTipoTramite.indexOf("."));
 					String nombreTipoTramite = tramTipoTramite.substring(tramTipoTramite.indexOf(".")+1);
+					
+					Double tramNroFolio = (Double) Utils.getValue(row.getCell(3));
 					Integer nroFolio = tramNroFolio.intValue();
 					
-					TipoTramiteDTO tipoTramiteDto = new TipoTramiteDTO(Long.valueOf(idTipoTramiteStr), nombreTipoTramite);
-					SolicitanteDTO solicitanteDto = new SolicitanteDTO(solicNroDocumento, solicTipoDocumento, solicTipoSolicitante, solicNombre, solicApellidoPaterno, SolicApellidoMaterno, solicCorreo, solicTelefono, solicRepresentante);
+					TipoTramiteDTO tipoTramiteDto = new TipoTramiteDTO(Long.valueOf(idTipoTramiteStr), 
+																	   nombreTipoTramite);
 					
-					TramiteDTO tramiteDto = new TramiteDTO(tramAsunto, tramObservacion, nroFolio, tramReferencia, tramTipoDocumento, tipoTramiteDto, solicitanteDto);
+					SolicitanteDTO solicitanteDto = new SolicitanteDTO((String) Utils.getValue(row.getCell(8)), 
+																	   (String) Utils.getValue(row.getCell(7)), 
+																	   (String) Utils.getValue(row.getCell(6)), 
+																	   (String) Utils.getValue(row.getCell(9)), 
+																	   (String) Utils.getValue(row.getCell(10)), 
+																	   (String) Utils.getValue(row.getCell(11)), 
+																	   (String) Utils.getValue(row.getCell(13)), 
+																	   (String) Utils.getValue(row.getCell(12)), 
+																	   (String) Utils.getValue(row.getCell(14)));
+					
+					TramiteDTO tramiteDto = new TramiteDTO((String) Utils.getValue(row.getCell(1)), 
+														   (String) Utils.getValue(row.getCell(5)), 
+														   nroFolio, 
+														   (String) Utils.getValue(row.getCell(4)), 
+														   (String) Utils.getValue(row.getCell(2)), 
+														   tipoTramiteDto, 
+														   solicitanteDto);
+					
 					TramiteRegisterDTO tramiteRegisterDto = new TramiteRegisterDTO();
 					tramiteRegisterDto.setTramiteDto(tramiteDto);
 					
 					Gson gson = new Gson();
 					
-					LOGGER.info(":::: Proceso Leer excel y registrar tramites. Trama input.  '{}' ", gson.toJson(tramiteRegisterDto));
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Trama input.  '{}' ", gson.toJson(tramiteRegisterDto));
 					
 					HttpClient httpClient = HttpClient.newHttpClient();
 					HttpRequest request = HttpRequest.newBuilder()
@@ -156,7 +128,7 @@ public class TramiteBusinessImp implements TramiteBusiness {
 						    .build();
 					
 					HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-					LOGGER.info(":::: Proceso Leer excel y registrar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
 					
 					listResponse.add(httpResponse);
 				}
@@ -164,56 +136,25 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			}
 			workbook.close();
 			fileInputStream.close();
-			LOGGER.info(":::: Proceso Leer excel y registrar tramites. Total registros :::: '{}' ", fila);
+			LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Total registros :::: '{}' ", fila);
 			
 		} catch (Exception e) {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-		LOGGER.info(":::: Proceso Leer excel y registrar tramites. Final :::: '{}' ", TramiteBusinessImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Final :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		return listResponse;
 	}
 	
-	private Object getValue(Cell cell) {
-		String  valueString;
-		Double  valueDouble;
-		Date    valueDate;
-		Boolean valueBoolean;
-		switch(cell.getCellType()) {
-			case STRING:
-				valueString = cell.getStringCellValue();
-				return valueString;
-			case NUMERIC:
-				if(DateUtil.isCellDateFormatted(cell)) {
-					valueDate = cell.getDateCellValue();
-					return valueDate;
-				}else {
-					valueDouble = cell.getNumericCellValue();
-					return valueDouble;
-				}
-			case BOOLEAN:
-				valueBoolean = cell.getBooleanCellValue();
-				return valueBoolean;
-			case _NONE:
-				return "";
-			case BLANK:
-				return "";
-			case ERROR:
-				return "";
-			default:
-				return "";
-		}
-	}
-	
 	public String getValue() {
-		LOGGER.info(":::: Proceso DEMO. Inicio :::: '{}' ", TramiteBusinessImp.class.getName());
+		LOGGER.info(":::: Proceso DEMO. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		return apiUrlSistradocRegister;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public String generateExcelResponseInsert(List<HttpResponse<String>> listResponse) throws IOException {
-		
+	public String generateExcelResponse(List<HttpResponse<String>> listResponse) throws IOException {
+		LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de registro de tramite. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
         try {
 //			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
 			FileOutputStream fileOutputStream = new FileOutputStream(outputPathRegister + Utils.getNewNameFile(outputFileRegister));
@@ -266,8 +207,13 @@ public class TramiteBusinessImp implements TramiteBusiness {
 			LOGGER.error(":::: Proceso Generar excel de respuesta de registro de tramite. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-        
+        LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de registro de tramite. Final :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		return "Archivo generado";
+	}
+
+	@Override
+	public void asignCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
 	}
 
 }

@@ -2,6 +2,7 @@ package pe.com.softlite.useexcel.controller;
 
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.com.softlite.useexcel.business.TramiteBusiness;
-import pe.com.softlite.useexcel.business.imp.TramiteBusinessImp;
+import pe.com.softlite.useexcel.business.imp.TramiteBusinessRegisterImp;
 
 @RestController
 @RequestMapping("/api")
@@ -29,13 +30,16 @@ public class ProcessController {
 	
 	@GetMapping("/insertTramitesByExcel")
 	public String registerTramite() {
-		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessImp.class.getName());
+		String correlationId = UUID.randomUUID().toString();
+		tramiteBusiness.asignCorrelationId(correlationId);
+		
+		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
 		List<HttpResponse<String>> listTramitesRegistred;
 		String archivoGenerado = null;
 		try {
-			listTramitesRegistred = tramiteBusiness.readExcelAndRegisterTramites();
-			archivoGenerado = tramiteBusiness.generateExcelResponseInsert(listTramitesRegistred);
+			listTramitesRegistred = tramiteBusiness.readExcelAndProcesingTramites();
+			archivoGenerado = tramiteBusiness.generateExcelResponse(listTramitesRegistred);
 		} catch (Exception e) {
 			LOGGER.error(":::: Proceso controller. insertTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);

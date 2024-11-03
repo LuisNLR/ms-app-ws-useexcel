@@ -6,10 +6,12 @@ import java.util.List;
 
 public interface TramiteBusiness {
 	
-	public List<HttpResponse<String>> readExcelAndRegisterTramites() throws Exception;
+	public List<HttpResponse<String>> readExcelAndProcesingTramites() throws Exception;
 	
-	public String generateExcelResponseInsert(List<HttpResponse<String>> listResponse) throws IOException;
+	public String generateExcelResponse(List<HttpResponse<String>> listResponse) throws IOException;
 	
 	public String getValue();
+	
+	public void asignCorrelationId(String correlationId);
 
 }
