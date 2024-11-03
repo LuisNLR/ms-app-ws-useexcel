@@ -21,7 +21,7 @@ public class Utils {
     	return oldNameFile.replace(".xlsx", "_" + fechaFormateada + ".xlsx");
 	}
 	
-	public static Object getValue(Cell cell) {
+	public static Object getValue(Cell cell, int numberRow, int numberColum) {
 		String  valueString;
 		Double  valueDouble;
 		Date    valueDate;
@@ -52,9 +52,9 @@ public class Utils {
 					return "";
 			}
 		} catch (Exception e) {
-			LOGGER.info( ":::: Proceso obtener valor de celda. Intentar obtener valor celda:::: '{}' ", Utils.class.getName());
-			LOGGER.error(":::: Proceso obtener valor de celda. Error Mensaje :::: '{}' ", e.getMessage());
-			LOGGER.error(e.getLocalizedMessage(), e);
+//			LOGGER.info( ":::: Proceso obtener valor de celda. Intentar obtener valor celda:::: '{}' ", Utils.class.getName());
+			LOGGER.error(":::: Proceso obtener valor de celda. Error controlado :::: Nro Fila: " + numberRow + ".  Nro columna: " + numberColum + ". Valor: '{}' ", e.getMessage());
+//			LOGGER.error(e.getLocalizedMessage(), e);
 			return null;
 		}
 		

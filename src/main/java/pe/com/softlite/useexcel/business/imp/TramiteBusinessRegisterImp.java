@@ -82,32 +82,32 @@ public class TramiteBusinessRegisterImp implements TramiteBusiness {
 				
 				if(fila>0) {
 					LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Nro Registro :::: '{}' ", fila);
-					String tramTipoTramite        = (String) Utils.getValue(row.getCell(0));
+					String tramTipoTramite        = (String) Utils.getValue(row.getCell(0), fila, 0);
 					
 					String idTipoTramiteStr = tramTipoTramite.substring(0, tramTipoTramite.indexOf("."));
 					String nombreTipoTramite = tramTipoTramite.substring(tramTipoTramite.indexOf(".")+1);
 					
-					Double tramNroFolio = (Double) Utils.getValue(row.getCell(3));
+					Double tramNroFolio = (Double) Utils.getValue(row.getCell(3), fila, 3);
 					Integer nroFolio = tramNroFolio.intValue();
 					
 					TipoTramiteDTO tipoTramiteDto = new TipoTramiteDTO(Long.valueOf(idTipoTramiteStr), 
 																	   nombreTipoTramite);
 					
-					SolicitanteDTO solicitanteDto = new SolicitanteDTO((String) Utils.getValue(row.getCell(8)), 
-																	   (String) Utils.getValue(row.getCell(7)), 
-																	   (String) Utils.getValue(row.getCell(6)), 
-																	   (String) Utils.getValue(row.getCell(9)), 
-																	   (String) Utils.getValue(row.getCell(10)), 
-																	   (String) Utils.getValue(row.getCell(11)), 
-																	   (String) Utils.getValue(row.getCell(13)), 
-																	   (String) Utils.getValue(row.getCell(12)), 
-																	   (String) Utils.getValue(row.getCell(14)));
+					SolicitanteDTO solicitanteDto = new SolicitanteDTO((String) Utils.getValue(row.getCell(8), fila, 8), 
+																	   (String) Utils.getValue(row.getCell(7), fila, 7), 
+																	   (String) Utils.getValue(row.getCell(6), fila, 6), 
+																	   (String) Utils.getValue(row.getCell(9), fila, 9), 
+																	   (String) Utils.getValue(row.getCell(10), fila, 10), 
+																	   (String) Utils.getValue(row.getCell(11), fila, 11), 
+																	   (String) Utils.getValue(row.getCell(13), fila, 13), 
+																	   (String) Utils.getValue(row.getCell(12), fila, 12), 
+																	   (String) Utils.getValue(row.getCell(14), fila, 14));
 					
-					TramiteDTO tramiteDto = new TramiteDTO((String) Utils.getValue(row.getCell(1)), 
-														   (String) Utils.getValue(row.getCell(5)), 
+					TramiteDTO tramiteDto = new TramiteDTO((String) Utils.getValue(row.getCell(1), fila, 1), 
+														   (String) Utils.getValue(row.getCell(5), fila, 5), 
 														   nroFolio, 
-														   (String) Utils.getValue(row.getCell(4)), 
-														   (String) Utils.getValue(row.getCell(2)), 
+														   (String) Utils.getValue(row.getCell(4), fila, 4), 
+														   (String) Utils.getValue(row.getCell(2), fila, 2), 
 														   tipoTramiteDto, 
 														   solicitanteDto);
 					
@@ -136,7 +136,7 @@ public class TramiteBusinessRegisterImp implements TramiteBusiness {
 			}
 			workbook.close();
 			fileInputStream.close();
-			LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Total registros :::: '{}' ", fila);
+			LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Total registros :::: '{}' ", fila - 1);
 			
 		} catch (Exception e) {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
@@ -172,6 +172,7 @@ public class TramiteBusinessRegisterImp implements TramiteBusiness {
 	        //Llenado de datos
 	        int fila=1;
 	        for(HttpResponse<String>response : listResponse) {
+	        	LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de registro de tramite. Trama response :::: '{}' ", response.body());
 	        	Map<String, Object> mapResponse = new Gson().fromJson(response.body(), new TypeToken<HashMap<String, Object>>() {}.getType());
 	        	String mensaje = (String) mapResponse.get("mensaje");
 				Map<String, Object> mapData = (Map<String, Object>) mapResponse.get("data");
