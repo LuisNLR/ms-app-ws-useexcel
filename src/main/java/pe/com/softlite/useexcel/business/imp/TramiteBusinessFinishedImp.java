@@ -1,6 +1,6 @@
 package pe.com.softlite.useexcel.business.imp;
 
-import pe.com.softlite.useexcel.business.TramiteBusinessDeriver;
+import pe.com.softlite.useexcel.business.TramiteBusinessFinished;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteMovimientoDTO;
 import pe.com.softlite.useexcel.utils.Utils;
@@ -32,7 +32,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
+public class TramiteBusinessFinishedImp implements TramiteBusinessFinished {
 	
 	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessFinishedImp.class);
 	
@@ -56,7 +56,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 	@SuppressWarnings("resource")
 	@Override
 	public List<HttpResponse<String>> readExcelAndProcesingTramites() throws Exception {
-		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Inicio :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Inicio :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
 		
 		List<HttpResponse<String>> listResponse = new ArrayList<>();
 		
@@ -79,7 +79,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 			for(Row row : sheet) {
 				
 				if(fila>0) {
-					LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Nro Registro :::: '{}' ", fila);
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Nro Registro :::: '{}' ", fila);
 					String codigoTramite = (String) Utils.getValue(row.getCell(0), fila, 0);
 					String motivoEnvio = (String) Utils.getValue(row.getCell(1), fila, 1);
 
@@ -88,7 +88,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 					
 					Gson gson = new Gson();
 					
-					LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Trama input.  '{}' ", gson.toJson(tramiteMovimientoDto));
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Trama input.  '{}' ", gson.toJson(tramiteMovimientoDto));
 					
 					HttpClient httpClient = HttpClient.newHttpClient();
 					HttpRequest request = HttpRequest.newBuilder()
@@ -100,7 +100,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 						    .build();
 					
 					HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-					LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. status Respuesta .  '{}' ", httpResponse.statusCode());
 					
 					listResponse.add(httpResponse);
 				}
@@ -108,13 +108,13 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 			}
 			workbook.close();
 			fileInputStream.close();
-			LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Total registros :::: '{}' ", fila - 1);
+			LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Total registros :::: '{}' ", fila - 1);
 			
 		} catch (Exception e) {
-			LOGGER.error(correlationId + ":::: Proceso Leer excel y derivar tramites. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(correlationId + ":::: Proceso Leer excel y finalizar tramites. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Final :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Final :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
 		return listResponse;
 	}
 	
@@ -126,7 +126,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 	@SuppressWarnings("unchecked")
 	@Override
 	public String generateExcelResponse(List<HttpResponse<String>> listResponse) throws IOException {
-		LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Inicio :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de finalización de tramite. Inicio :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
         try {
 //			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
 			FileOutputStream fileOutputStream = new FileOutputStream(outputPathFinished + Utils.getNewNameFile(outputFileFinished));
@@ -144,7 +144,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 	        //Llenado de datos
 	        int fila=1;
 	        for(HttpResponse<String>response : listResponse) {
-	        	LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Trama response :::: '{}' ", response.body());
+	        	LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de finalización de tramite. Trama response :::: '{}' ", response.body());
 	        	Map<String, Object> mapResponse = new Gson().fromJson(response.body(), new TypeToken<HashMap<String, Object>>() {}.getType());
 	        	String mensaje = (String) mapResponse.get("mensaje");
 				Map<String, Object> mapData = (Map<String, Object>) mapResponse.get("data");
@@ -170,10 +170,10 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessDeriver {
 			fileOutputStream.close();
 	        
 		} catch (FileNotFoundException e) {
-			LOGGER.error(":::: Proceso Generar excel de respuesta de derivación de tramite. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(":::: Proceso Generar excel de respuesta de finalización de tramite. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-        LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Final :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
+        LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de finalización de tramite. Final :::: '{}' ", TramiteBusinessFinishedImp.class.getName());
 		return "Archivo generado";
 	}
 

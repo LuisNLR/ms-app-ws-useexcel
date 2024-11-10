@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.com.softlite.useexcel.business.TramiteBusinessDeriver;
+import pe.com.softlite.useexcel.business.TramiteBusinessDevolver;
+import pe.com.softlite.useexcel.business.TramiteBusinessFinished;
 import pe.com.softlite.useexcel.business.TramiteBusinessRegister;
 import pe.com.softlite.useexcel.business.imp.TramiteBusinessRegisterImp;
 
@@ -26,6 +28,12 @@ public class ProcessController {
 	
 	@Autowired
 	private TramiteBusinessDeriver tramiteBusinessDeriver;
+	
+	@Autowired
+	private TramiteBusinessDevolver tramiteBusinessDevolver;
+	
+	@Autowired
+	private TramiteBusinessFinished tramiteBusinessFinished;
 	
 	@GetMapping("/testUrlByExcel")
 	public String testURL() {
@@ -52,11 +60,11 @@ public class ProcessController {
 	}
 	
 	@GetMapping("/processDeriverTramitesByExcel")
-	public String processDeriverrTramite() {
+	public String processDeriverTramite() {
 		String correlationId = UUID.randomUUID().toString();
 		tramiteBusinessDeriver.asignCorrelationId(correlationId);
 		
-		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
+		LOGGER.info(":::: Proceso controller. deriverTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
 		List<HttpResponse<String>> listTramitesRegistred;
 		String archivoGenerado = null;
@@ -64,7 +72,45 @@ public class ProcessController {
 			listTramitesRegistred = tramiteBusinessDeriver.readExcelAndProcesingTramites();
 			archivoGenerado = tramiteBusinessDeriver.generateExcelResponse(listTramitesRegistred);
 		} catch (Exception e) {
-			LOGGER.error(":::: Proceso controller. insertTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(":::: Proceso controller. deriverTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
+		}
+		return "Excel procesado: " + archivoGenerado;
+	}
+	
+	@GetMapping("/processDevolverTramitesByExcel")
+	public String processDevolverTramite() {
+		String correlationId = UUID.randomUUID().toString();
+		tramiteBusinessDevolver.asignCorrelationId(correlationId);
+		
+		LOGGER.info(":::: Proceso controller. devolverTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
+		
+		List<HttpResponse<String>> listTramitesRegistred;
+		String archivoGenerado = null;
+		try {
+			listTramitesRegistred = tramiteBusinessDevolver.readExcelAndProcesingTramites();
+			archivoGenerado = tramiteBusinessDevolver.generateExcelResponse(listTramitesRegistred);
+		} catch (Exception e) {
+			LOGGER.error(":::: Proceso controller. devolverTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
+		}
+		return "Excel procesado: " + archivoGenerado;
+	}
+	
+	@GetMapping("/processFinishedTramitesByExcel")
+	public String processFinishedTramite() {
+		String correlationId = UUID.randomUUID().toString();
+		tramiteBusinessFinished.asignCorrelationId(correlationId);
+		
+		LOGGER.info(":::: Proceso controller. finishedTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
+		
+		List<HttpResponse<String>> listTramitesRegistred;
+		String archivoGenerado = null;
+		try {
+			listTramitesRegistred = tramiteBusinessFinished.readExcelAndProcesingTramites();
+			archivoGenerado = tramiteBusinessFinished.generateExcelResponse(listTramitesRegistred);
+		} catch (Exception e) {
+			LOGGER.error(":::: Proceso controller. finishedTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
 		return "Excel procesado: " + archivoGenerado;
