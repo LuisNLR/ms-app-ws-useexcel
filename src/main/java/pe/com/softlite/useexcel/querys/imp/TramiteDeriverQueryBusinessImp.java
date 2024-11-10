@@ -1,4 +1,4 @@
-package pe.com.softlite.useexcel.business.imp;
+package pe.com.softlite.useexcel.querys.imp;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,29 +19,31 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pe.com.softlite.useexcel.business.TramiteQueryBusiness;
-import pe.com.softlite.useexcel.dto.TramiteByDeriver;
+
+import pe.com.softlite.useexcel.dto.TramiteToProcess;
+import pe.com.softlite.useexcel.querys.TramiteDeriverQueryBusiness;
 import pe.com.softlite.useexcel.utils.Utils;
 
 @Service
-public class TramiteQueryBusinessImp implements TramiteQueryBusiness {
+public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusiness {
 	
-	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteQueryBusinessImp.class);
+	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteDeriverQueryBusinessImp.class);
 	
 	private String correlationId;
 	
 	@Value("${api.ws.sistradoc.getListTramiteDeriver}")
 	private String apiUrlSistradocGetListByDeriver;
 	
-	@Value("${excel.prev.path.deriver}")
-	private String pathPrevDeriver;
+//	@Value("${excel.previo.path.deriver}")
+	@Value("${excel.input.path.deriver}")
+	private String pathPrevioDeriver;
 	
-	@Value("${excel.prev.file.deriver}")
-	private String filePrevDeriver;
+	@Value("${excel.input.file.deriver}")
+	private String filePrevioDeriver;
 
 	@Override
-	public List<TramiteByDeriver> getListTramiteByDeriver() throws IOException, InterruptedException {
-		LOGGER.info(correlationId + ":::: Proceso obtener tramites a derivar. Inicio :::: '{}' ", TramiteQueryBusinessImp.class.getName());
+	public List<TramiteToProcess> getListTramite() throws IOException, InterruptedException {
+		LOGGER.info(correlationId + ":::: Proceso obtener tramites a derivar. Inicio :::: '{}' ", TramiteDeriverQueryBusinessImp.class.getName());
 		HttpClient httpClient = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
 			    .uri(URI.create(apiUrlSistradocGetListByDeriver))
@@ -53,9 +55,9 @@ public class TramiteQueryBusinessImp implements TramiteQueryBusiness {
 		
 		HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		ObjectMapper objectMapper = new ObjectMapper();
-		TramiteByDeriver[] listTramiteByDeriver = null;
+		TramiteToProcess[] listTramiteByDeriver = null;
 		try {
-			listTramiteByDeriver = objectMapper.readValue(httpResponse.body(), TramiteByDeriver[].class);
+			listTramiteByDeriver = objectMapper.readValue(httpResponse.body(), TramiteToProcess[].class);
 			LOGGER.info(correlationId + ":::: Proceso obtener tramites a derivar. Total registros :::: '{}' ", listTramiteByDeriver.length);
 		} catch (Exception e) {
 			LOGGER.error(correlationId + ":::: Proceso obtener tramites a derivar. Error Mensaje :::: '{}' ", e.getMessage());
@@ -66,11 +68,11 @@ public class TramiteQueryBusinessImp implements TramiteQueryBusiness {
 	}
 
 	@Override
-	public String generateExcelTramiteByDeriver(List<TramiteByDeriver> listTramiteDeriver) throws IOException {
-		LOGGER.info(correlationId + ":::: Proceso generar excel tramites a derivar. Inicio :::: '{}' ", TramiteQueryBusinessImp.class.getName());
+	public String generateExcelTramiteProcess(List<TramiteToProcess> listTramiteDeriver) throws IOException {
+		LOGGER.info(correlationId + ":::: Proceso generar excel tramites a derivar. Inicio :::: '{}' ", "generateExcelTramiteByDeriver");
 		try {
 //			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\Previo\\TramiteByDeriver.xlsx");
-			FileOutputStream fileOutputStream = new FileOutputStream(pathPrevDeriver + Utils.getNewNameFile(filePrevDeriver));
+			FileOutputStream fileOutputStream = new FileOutputStream(pathPrevioDeriver + Utils.getNewNameFile(filePrevioDeriver));
 			Workbook workbook = new XSSFWorkbook();
 	        Sheet sheet = workbook.createSheet("Response");
 	        	        
@@ -84,7 +86,7 @@ public class TramiteQueryBusinessImp implements TramiteQueryBusiness {
 	        
 	        //Llenado de datos
 	        int fila=1;
-	        for(TramiteByDeriver tramiteDeriver : listTramiteDeriver) {
+	        for(TramiteToProcess tramiteDeriver : listTramiteDeriver) {
 	        	String[] data = {tramiteDeriver.getCodigoTramite(), 
 	        					 null, 
 	        					 tramiteDeriver.getFechaIngreso(), 
@@ -111,6 +113,7 @@ public class TramiteQueryBusinessImp implements TramiteQueryBusiness {
 			LOGGER.error(correlationId + ":::: Proceso generar excel tramites a derivar. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
+		LOGGER.info(correlationId + ":::: Proceso generar excel tramites a derivar. Final :::: '{}' ", "generateExcelTramiteByDeriver");
 		return "Archivo generado";
 	}
 

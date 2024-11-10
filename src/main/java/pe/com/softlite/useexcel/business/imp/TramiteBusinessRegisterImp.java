@@ -1,6 +1,6 @@
 package pe.com.softlite.useexcel.business.imp;
 
-import pe.com.softlite.useexcel.business.TramiteBusiness;
+import pe.com.softlite.useexcel.business.TramiteBusinessRegister;
 import pe.com.softlite.useexcel.dto.SolicitanteDTO;
 import pe.com.softlite.useexcel.dto.TipoTramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
@@ -34,7 +34,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-public class TramiteBusinessRegisterImp implements TramiteBusiness {
+public class TramiteBusinessRegisterImp implements TramiteBusinessRegister {
 	
 	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessRegisterImp.class);
 	

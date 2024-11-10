@@ -32,35 +32,35 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-public class TramiteBusinessDeriverImp implements TramiteBusinessDeriver {
+public class TramiteBusinessDevolverImp implements TramiteBusinessDeriver {
 	
-	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessDeriverImp.class);
+	public final static Logger LOGGER = LoggerFactory.getLogger(TramiteBusinessDevolverImp.class);
 	
 	private String correlationId;
 
-	@Value("${api.ws.sistradoc.deriver}")
-	private String apiUrlSistradocDeriver;
+	@Value("${api.ws.sistradoc.devolver}")
+	private String apiUrlSistradocDevolver;
 	
-	@Value("${excel.input.path.deriver}")
-	private String inputPathDeriver;
+	@Value("${excel.input.path.devolver}")
+	private String inputPathDevolver;
 	
-	@Value("${excel.input.file.deriver}")
-	private String inputFileDeriver;
+	@Value("${excel.input.file.devolver}")
+	private String inputFileDevolver;
 
-	@Value("${excel.output.path.deriver}")
-	private String outputPathDeriver;
+	@Value("${excel.output.path.devolver}")
+	private String outputPathDevolver;
 	
-	@Value("${excel.output.file.deriver}")
-	private String outputFileDeriver;
+	@Value("${excel.output.file.devolver}")
+	private String outputFileDevolver;
 	
 	@SuppressWarnings("resource")
 	@Override
 	public List<HttpResponse<String>> readExcelAndProcesingTramites() throws Exception {
-		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Inicio :::: '{}' ", TramiteBusinessDeriverImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Inicio :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
 		
 		List<HttpResponse<String>> listResponse = new ArrayList<>();
 		
-		String excelFilePath = inputPathDeriver + inputFileDeriver;
+		String excelFilePath = inputPathDevolver + inputFileDevolver;
 //		String excelFilePath = "D:\\Tools\\Tramite.excel\\Input\\Register\\Input_registrar_tramite.xlsx";
 		try {
 			FileInputStream fileInputStream = new FileInputStream(excelFilePath);
@@ -92,7 +92,7 @@ public class TramiteBusinessDeriverImp implements TramiteBusinessDeriver {
 					
 					HttpClient httpClient = HttpClient.newHttpClient();
 					HttpRequest request = HttpRequest.newBuilder()
-						    .uri(URI.create(apiUrlSistradocDeriver))
+						    .uri(URI.create(apiUrlSistradocDevolver))
 //						    .uri(URI.create("http://localhost:8090/ms-app-ws-sistradoc/api/registerTramite"))
 						    .header("Content-Type", "application/json")
 						    .version(HttpClient.Version.HTTP_1_1)
@@ -114,22 +114,22 @@ public class TramiteBusinessDeriverImp implements TramiteBusinessDeriver {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y derivar tramites. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Final :::: '{}' ", TramiteBusinessDeriverImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Leer excel y derivar tramites. Final :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
 		return listResponse;
 	}
 	
 	public String getValue() {
-		LOGGER.info(":::: Proceso DEMO. Inicio :::: '{}' ", TramiteBusinessDeriverImp.class.getName());
-		return apiUrlSistradocDeriver;
+		LOGGER.info(":::: Proceso DEMO. Inicio :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
+		return apiUrlSistradocDevolver;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public String generateExcelResponse(List<HttpResponse<String>> listResponse) throws IOException {
-		LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Inicio :::: '{}' ", TramiteBusinessDeriverImp.class.getName());
+		LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Inicio :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
         try {
 //			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\output\\OutputRegister.xlsx");
-			FileOutputStream fileOutputStream = new FileOutputStream(outputPathDeriver + Utils.getNewNameFile(outputFileDeriver));
+			FileOutputStream fileOutputStream = new FileOutputStream(outputPathDevolver + Utils.getNewNameFile(outputFileDevolver));
 			Workbook workbook = new XSSFWorkbook();
 	        Sheet sheet = workbook.createSheet("Response");
 	        	        
@@ -173,7 +173,7 @@ public class TramiteBusinessDeriverImp implements TramiteBusinessDeriver {
 			LOGGER.error(":::: Proceso Generar excel de respuesta de derivación de tramite. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
-        LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Final :::: '{}' ", TramiteBusinessDeriverImp.class.getName());
+        LOGGER.info(correlationId + ":::: Proceso Generar excel de respuesta de derivación de tramite. Final :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
 		return "Archivo generado";
 	}
 

@@ -22,7 +22,12 @@ public class TramiteDTO {
 	public TramiteDTO() {
 		super();
 	}
-	
+
+	public TramiteDTO(String codigoTramite) {
+		super();
+		this.codigoTramite = codigoTramite;
+	}
+
 	public TramiteDTO(String asunto, String observacion, Integer numeroFolios, String referencia, String tipoDocumento,
 			TipoTramiteDTO tipoTramiteDto, SolicitanteDTO solicitanteDto) {
 		super();

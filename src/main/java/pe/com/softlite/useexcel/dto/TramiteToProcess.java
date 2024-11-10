@@ -1,6 +1,6 @@
 package pe.com.softlite.useexcel.dto;
 
-public class TramiteByDeriver {
+public class TramiteToProcess {
 	
 	private String codigoTramite;
 	private String fechaIngreso;
