@@ -14,7 +14,7 @@ public class TramiteDTO {
 //	private Date fechaTermino;
 	private Integer numeroFolios;
 	private String referencia;
-//	private String estadoTramite;
+	private String estadoTramite;
 	private String tipoDocumento;
 	private TipoTramiteDTO tipoTramiteDto;
 	private SolicitanteDTO solicitanteDto;
@@ -26,6 +26,12 @@ public class TramiteDTO {
 	public TramiteDTO(String codigoTramite) {
 		super();
 		this.codigoTramite = codigoTramite;
+	}
+
+	public TramiteDTO(String codigoTramite, String estadoTramite) {
+		super();
+		this.codigoTramite = codigoTramite;
+		this.estadoTramite = estadoTramite;
 	}
 
 	public TramiteDTO(String asunto, String observacion, Integer numeroFolios, String referencia, String tipoDocumento,
@@ -95,12 +101,12 @@ public class TramiteDTO {
 	public void setReferencia(String referencia) {
 		this.referencia = referencia;
 	}
-//	public String getEstadoTramite() {
-//		return estadoTramite;
-//	}
-//	public void setEstadoTramite(String estadoTramite) {
-//		this.estadoTramite = estadoTramite;
-//	}
+	public String getEstadoTramite() {
+		return estadoTramite;
+	}
+	public void setEstadoTramite(String estadoTramite) {
+		this.estadoTramite = estadoTramite;
+	}
 	public String getTipoDocumento() {
 		return tipoDocumento;
 	}

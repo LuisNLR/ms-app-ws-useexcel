@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.com.softlite.useexcel.business.imp.TramiteBusinessRegisterImp;
-import pe.com.softlite.useexcel.dto.TramiteToProcess;
+import pe.com.softlite.useexcel.dto.TramiteQuerysDTO;
 import pe.com.softlite.useexcel.querys.TramiteDeriverQueryBusiness;
 import pe.com.softlite.useexcel.querys.TramiteDevolverQueryBusiness;
 import pe.com.softlite.useexcel.querys.TramiteFinishedQueryBusiness;
@@ -38,7 +38,7 @@ public class ListController {
 		
 		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
-		List<TramiteToProcess> listTramiteDeriver;
+		List<TramiteQuerysDTO> listTramiteDeriver;
 		String archivoGenerado = null;
 		try {
 			listTramiteDeriver = tramiteDeriverQueryBusiness.getListTramite();
@@ -57,7 +57,7 @@ public class ListController {
 		
 		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
-		List<TramiteToProcess> listTramiteDeriver;
+		List<TramiteQuerysDTO> listTramiteDeriver;
 		String archivoGenerado = null;
 		try {
 			listTramiteDeriver = tramiteDevolverQueryBusiness.getListTramite();
@@ -76,7 +76,7 @@ public class ListController {
 		
 		LOGGER.info(":::: Proceso controller. insertTramitesByExcel. Inicio :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		
-		List<TramiteToProcess> listTramiteDeriver;
+		List<TramiteQuerysDTO> listTramiteDeriver;
 		String archivoGenerado = null;
 		try {
 			listTramiteDeriver = tramiteFinishedQueryBusiness.getListTramite();

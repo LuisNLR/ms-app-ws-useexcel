@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pe.com.softlite.useexcel.dto.TramiteToProcess;
+import pe.com.softlite.useexcel.dto.TramiteQuerysDTO;
 import pe.com.softlite.useexcel.querys.TramiteDeriverQueryBusiness;
 import pe.com.softlite.useexcel.utils.Utils;
 
@@ -42,7 +42,7 @@ public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusine
 	private String filePrevioDeriver;
 
 	@Override
-	public List<TramiteToProcess> getListTramite() throws IOException, InterruptedException {
+	public List<TramiteQuerysDTO> getListTramite() throws IOException, InterruptedException {
 		LOGGER.info(correlationId + ":::: Proceso obtener tramites a derivar. Inicio :::: '{}' ", TramiteDeriverQueryBusinessImp.class.getName());
 		HttpClient httpClient = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
@@ -55,9 +55,9 @@ public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusine
 		
 		HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		ObjectMapper objectMapper = new ObjectMapper();
-		TramiteToProcess[] listTramiteByDeriver = null;
+		TramiteQuerysDTO[] listTramiteByDeriver = null;
 		try {
-			listTramiteByDeriver = objectMapper.readValue(httpResponse.body(), TramiteToProcess[].class);
+			listTramiteByDeriver = objectMapper.readValue(httpResponse.body(), TramiteQuerysDTO[].class);
 			LOGGER.info(correlationId + ":::: Proceso obtener tramites a derivar. Total registros :::: '{}' ", listTramiteByDeriver.length);
 		} catch (Exception e) {
 			LOGGER.error(correlationId + ":::: Proceso obtener tramites a derivar. Error Mensaje :::: '{}' ", e.getMessage());
@@ -68,7 +68,7 @@ public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusine
 	}
 
 	@Override
-	public String generateExcelTramiteProcess(List<TramiteToProcess> listTramiteDeriver) throws IOException {
+	public String generateExcelTramiteProcess(List<TramiteQuerysDTO> listTramiteDeriver) throws IOException {
 		LOGGER.info(correlationId + ":::: Proceso generar excel tramites a derivar. Inicio :::: '{}' ", "generateExcelTramiteByDeriver");
 		try {
 //			FileOutputStream fileOutputStream = new FileOutputStream("D:\\Tools\\Tramite.excel\\Previo\\TramiteByDeriver.xlsx");
@@ -77,8 +77,13 @@ public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusine
 	        Sheet sheet = workbook.createSheet("Response");
 	        	        
 	        //Cabecera
-	        String[] cabecera = {"CODIGO TRAMITE", "MOTIVO DERIVACION", "FECHA INGRESO", "TIPO TRAMITE", "ASUNTO", 
-	        					 "SOLICITANTE", "DEPENDENCIA ACTUAL", "DEPENDENCIA DESTINO"};
+	        String[] cabecera = {"CODIGO TRAMITE", 
+	        					 "MOTIVO DERIVACION", 
+	        					 "TIPO TRAMITE", 
+	        					 "ASUNTO", 
+	        					 "SOLICITANTE", 
+	        					 "DEPENDENCIA ACTUAL", 
+	        					 "DEPENDENCIA DESTINO"};
 	        Row rowCabecera = sheet.createRow(0);
 	        for(int i=0;i<cabecera.length;i++) {
 	        	rowCabecera.createCell(i).setCellValue(cabecera[i]);
@@ -86,15 +91,15 @@ public class TramiteDeriverQueryBusinessImp implements TramiteDeriverQueryBusine
 	        
 	        //Llenado de datos
 	        int fila=1;
-	        for(TramiteToProcess tramiteDeriver : listTramiteDeriver) {
-	        	String[] data = {tramiteDeriver.getCodigoTramite(), 
+	        for(TramiteQuerysDTO tramiteQuerys : listTramiteDeriver) {
+	        	String[] data = {tramiteQuerys.getCodigoTramite(), 
 	        					 null, 
-	        					 tramiteDeriver.getFechaIngreso(), 
-	        					 tramiteDeriver.getTipoTramite(), 
-	        					 tramiteDeriver.getAsunto(),
-	        					 tramiteDeriver.getSolicitante(),
-	        					 tramiteDeriver.getDependenciaActual(),
-	        					 tramiteDeriver.getDependenciaDestino()};
+	        					 tramiteQuerys.getFechaIngreso(),
+	        					 tramiteQuerys.getTipoTramite(), 
+	        					 tramiteQuerys.getAsunto(),
+	        					 tramiteQuerys.getSolicitante(),
+	        					 tramiteQuerys.getDependenciaActual(),
+	        					 tramiteQuerys.getDependenciaDestino()};
 	        	
 		        Row rowFila = sheet.createRow(fila);
 		        

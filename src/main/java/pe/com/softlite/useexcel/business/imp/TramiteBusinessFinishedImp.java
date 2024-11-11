@@ -2,7 +2,7 @@ package pe.com.softlite.useexcel.business.imp;
 
 import pe.com.softlite.useexcel.business.TramiteBusinessFinished;
 import pe.com.softlite.useexcel.dto.TramiteDTO;
-import pe.com.softlite.useexcel.dto.TramiteMovimientoDTO;
+import pe.com.softlite.useexcel.dto.TramiteRegisterDTO;
 import pe.com.softlite.useexcel.utils.Utils;
 
 import java.io.FileInputStream;
@@ -81,14 +81,15 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessFinished {
 				if(fila>0) {
 					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Nro Registro :::: '{}' ", fila);
 					String codigoTramite = (String) Utils.getValue(row.getCell(0), fila, 0);
-					String motivoEnvio = (String) Utils.getValue(row.getCell(1), fila, 1);
+					String decisionTramite = (String) Utils.getValue(row.getCell(1), fila, 1);
 
-					TramiteDTO tramiteDto = new TramiteDTO(codigoTramite);
-					TramiteMovimientoDTO tramiteMovimientoDto = new TramiteMovimientoDTO(motivoEnvio, tramiteDto);
+					TramiteDTO tramiteDto = new TramiteDTO(codigoTramite, decisionTramite);
+					TramiteRegisterDTO tramiteFinished = new TramiteRegisterDTO();
+					tramiteFinished.setTramiteDto(tramiteDto);
 					
 					Gson gson = new Gson();
 					
-					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Trama input.  '{}' ", gson.toJson(tramiteMovimientoDto));
+					LOGGER.info(correlationId + ":::: Proceso Leer excel y finalizar tramites. Trama input.  '{}' ", gson.toJson(tramiteFinished));
 					
 					HttpClient httpClient = HttpClient.newHttpClient();
 					HttpRequest request = HttpRequest.newBuilder()
@@ -96,7 +97,7 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessFinished {
 //						    .uri(URI.create("http://localhost:8090/ms-app-ws-sistradoc/api/registerTramite"))
 						    .header("Content-Type", "application/json")
 						    .version(HttpClient.Version.HTTP_1_1)
-						    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(tramiteMovimientoDto)))
+						    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(tramiteFinished)))
 						    .build();
 					
 					HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -152,11 +153,10 @@ public class TramiteBusinessFinishedImp implements TramiteBusinessFinished {
 	        	String asunto = (String) mapData.get("asunto");
 	        	String solicitante = (String) mapData.get("solicitante");
 	        	String tipoTramite = (String) mapData.get("tipoTramite");
-	        	String dependenciaDestino = (String) mapData.get("dependenciaDestino");
 	        	
 	        	
-	        	String[] data = {mensaje, codigoTramite, tipoTramite, asunto, 
-	        			solicitante, dependenciaDestino };
+	        	
+	        	String[] data = {mensaje, codigoTramite, tipoTramite, asunto, solicitante };
 	        	Row rowFila = sheet.createRow(fila);
 	        	
 	        	for(int i=0;i<data.length;i++) {
