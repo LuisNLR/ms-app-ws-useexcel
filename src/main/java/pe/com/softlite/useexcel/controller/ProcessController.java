@@ -70,12 +70,19 @@ public class ProcessController {
 		String archivoGenerado = null;
 		try {
 			listTramitesRegistred = tramiteBusinessDeriver.readExcelAndProcesingTramites();
-			archivoGenerado = tramiteBusinessDeriver.generateExcelResponse(listTramitesRegistred);
+			if(!listTramitesRegistred.isEmpty()) {
+				archivoGenerado = tramiteBusinessDeriver.generateExcelResponse(listTramitesRegistred);
+			}else {
+				archivoGenerado = "No se generó el archivo";
+			}
+			
 		} catch (Exception e) {
 			LOGGER.error(":::: Proceso controller. deriverTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
+			archivoGenerado = e.getMessage();
 		}
 		return "Excel procesado: " + archivoGenerado;
+		
 	}
 	
 	@GetMapping("/processDevolverTramitesByExcel")

@@ -7,6 +7,7 @@ import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteRegisterDTO;
 import pe.com.softlite.useexcel.utils.Utils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -54,6 +55,8 @@ public class TramiteBusinessRegisterImp implements TramiteBusinessRegister {
 	
 	@Value("${excel.output.file.register}")
 	private String outputFileRegister;
+	
+	private static final String processed = "processed";
 	
 	@SuppressWarnings("resource")
 	@Override
@@ -142,6 +145,27 @@ public class TramiteBusinessRegisterImp implements TramiteBusinessRegister {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
+		
+		//Renombrar archivo.
+		File oldName;
+		File newName;
+		try {
+			oldName = new File(excelFilePath);
+
+			String strNewNameFile = inputPathRegister + processed + "\\" + inputFileRegister.replace(".xlsx", "_" + processed + ".xlsx");
+			strNewNameFile = Utils.getNewNameFile(strNewNameFile);
+			newName = new File(strNewNameFile);
+			
+			if(oldName.renameTo(newName)) {
+				LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Renombrando archivo :::: '{}' ", oldName);
+			}else {
+				LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. No se renombró el archivo :::: '{}' ", oldName);
+			}
+		} catch (Exception e) {
+			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
+		}
+				
 		LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Final :::: '{}' ", TramiteBusinessRegisterImp.class.getName());
 		return listResponse;
 	}

@@ -5,6 +5,7 @@ import pe.com.softlite.useexcel.dto.TramiteDTO;
 import pe.com.softlite.useexcel.dto.TramiteMovimientoDTO;
 import pe.com.softlite.useexcel.utils.Utils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -52,6 +53,8 @@ public class TramiteBusinessDevolverImp implements TramiteBusinessDevolver {
 	
 	@Value("${excel.output.file.devolver}")
 	private String outputFileDevolver;
+	
+	private static final String processed = "processed";
 	
 	@SuppressWarnings("resource")
 	@Override
@@ -114,6 +117,27 @@ public class TramiteBusinessDevolverImp implements TramiteBusinessDevolver {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y devolver tramites. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
 		}
+		
+		//Renombrar archivo.
+		File oldName;
+		File newName;
+		try {
+			oldName = new File(excelFilePath);
+
+			String strNewNameFile = inputPathDevolver + processed + "\\" + inputFileDevolver.replace(".xlsx", "_" + processed + ".xlsx");
+			strNewNameFile = Utils.getNewNameFile(strNewNameFile);
+			newName = new File(strNewNameFile);
+			
+			if(oldName.renameTo(newName)) {
+				LOGGER.info(correlationId + ":::: Proceso Leer excel y devolver tramites. Renombrando archivo :::: '{}' ", oldName);
+			}else {
+				LOGGER.info(correlationId + ":::: Proceso Leer excel y devolver tramites. No se renombró el archivo :::: '{}' ", oldName);
+			}
+		} catch (Exception e) {
+			LOGGER.error(correlationId + ":::: Proceso Leer excel y devolver tramites. Error Mensaje :::: '{}' ", e.getMessage());
+			LOGGER.error(e.getLocalizedMessage(), e);
+		}
+		
 		LOGGER.info(correlationId + ":::: Proceso Leer excel y devolver tramites. Final :::: '{}' ", TramiteBusinessDevolverImp.class.getName());
 		return listResponse;
 	}
