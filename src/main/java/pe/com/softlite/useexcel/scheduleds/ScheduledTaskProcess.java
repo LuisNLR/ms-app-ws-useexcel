@@ -6,10 +6,14 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import pe.com.softlite.useexcel.controller.ProcessController;
 
+@Component
+@EnableScheduling
 public class ScheduledTaskProcess {
 	
 	public final static Logger LOGGER = LoggerFactory.getLogger(ScheduledTaskProcess.class);
@@ -19,10 +23,9 @@ public class ScheduledTaskProcess {
 	
 	private final long SEGUNDO = 1000;
 	private final long MINUTO = SEGUNDO * 60;
-	private final long MINUTO_Y_MEDIO = MINUTO + MINUTO/2;
-	private final long HORA = MINUTO * 60;
+//	private final long MINUTO_Y_MEDIO = MINUTO + MINUTO/2;
 	
-	@Scheduled(fixedDelay = MINUTO*3)
+	@Scheduled(initialDelay = MINUTO*3, fixedDelay = MINUTO*3)
 	public void taskRegisterTramite() {
 		String correlationId = UUID.randomUUID().toString();
 		LOGGER.info(correlationId + ":::: Proceso Registro programado. Inicio :::: '{}' ", ScheduledTaskProcess.class.getName());
@@ -32,7 +35,7 @@ public class ScheduledTaskProcess {
 		LOGGER.info(correlationId + ":::: Proceso Registro programado. Fin :::: '{}' ", "Hecho");
 	}
 	
-	@Scheduled(initialDelay = MINUTO_Y_MEDIO, fixedDelay = MINUTO*3)
+	@Scheduled(initialDelay = MINUTO*5, fixedDelay = MINUTO*5)
 	public void taskDeriverTramite() {
 		String correlationId = UUID.randomUUID().toString();
 		LOGGER.info(correlationId + ":::: Proceso Derivar programado. Inicio :::: '{}' ", ScheduledTaskProcess.class.getName());
@@ -42,7 +45,7 @@ public class ScheduledTaskProcess {
 		LOGGER.info(correlationId + ":::: Proceso Derivar programado. Fin :::: '{}' ", "Hecho");
 	}
 	
-	@Scheduled(initialDelay = MINUTO*2, fixedDelay = MINUTO*3)
+	@Scheduled(initialDelay = MINUTO*11, fixedDelay = MINUTO*11)
 	public void taskDevolverTramite() {
 		String correlationId = UUID.randomUUID().toString();
 		LOGGER.info(correlationId + ":::: Proceso Devolver programado. Inicio :::: '{}' ", ScheduledTaskProcess.class.getName());
@@ -52,7 +55,7 @@ public class ScheduledTaskProcess {
 		LOGGER.info(correlationId + ":::: Proceso Devolver programado. Fin :::: '{}' ", "Hecho");
 	}
 
-	@Scheduled(initialDelay = MINUTO*2, fixedDelay = MINUTO*3)
+	@Scheduled(initialDelay = MINUTO*7, fixedDelay = MINUTO*7)
 	public void taskFinalizarTramite() {
 		String correlationId = UUID.randomUUID().toString();
 		LOGGER.info(correlationId + ":::: Proceso Finalizar programado. Inicio :::: '{}' ", ScheduledTaskProcess.class.getName());

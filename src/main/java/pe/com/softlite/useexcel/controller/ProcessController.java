@@ -51,7 +51,9 @@ public class ProcessController {
 		String archivoGenerado = null;
 		try {
 			listTramitesRegistred = tramiteBusinessRegister.readExcelAndProcesingTramites();
-			archivoGenerado = tramiteBusinessRegister.generateExcelResponse(listTramitesRegistred);
+			if(!listTramitesRegistred.isEmpty()) {
+				archivoGenerado = tramiteBusinessRegister.generateExcelResponse(listTramitesRegistred);
+			}
 		} catch (Exception e) {
 			LOGGER.error(":::: Proceso controller. insertTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
@@ -96,7 +98,10 @@ public class ProcessController {
 		String archivoGenerado = null;
 		try {
 			listTramitesRegistred = tramiteBusinessDevolver.readExcelAndProcesingTramites();
-			archivoGenerado = tramiteBusinessDevolver.generateExcelResponse(listTramitesRegistred);
+			if(!listTramitesRegistred.isEmpty()) {
+				archivoGenerado = tramiteBusinessDevolver.generateExcelResponse(listTramitesRegistred);
+			}
+			
 		} catch (Exception e) {
 			LOGGER.error(":::: Proceso controller. devolverTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
@@ -115,7 +120,9 @@ public class ProcessController {
 		String archivoGenerado = null;
 		try {
 			listTramitesRegistred = tramiteBusinessFinished.readExcelAndProcesingTramites();
-			archivoGenerado = tramiteBusinessFinished.generateExcelResponse(listTramitesRegistred);
+			if(!listTramitesRegistred.isEmpty()) {
+				archivoGenerado = tramiteBusinessFinished.generateExcelResponse(listTramitesRegistred);
+			}
 		} catch (Exception e) {
 			LOGGER.error(":::: Proceso controller. finishedTramitesByExcel. Error Mensaje :::: '{}' ", e.getMessage());
 			LOGGER.error(e.getLocalizedMessage(), e);
