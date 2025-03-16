@@ -76,7 +76,8 @@ public class TramiteBusinessRegisterImp implements TramiteBusinessRegister {
 			}else if(excelFilePath.endsWith(".xls")) {
 				workbook = new HSSFWorkbook(fileInputStream);
 			}else {
-				throw new IllegalArgumentException("El archivo especificado no es un archivo excel");
+//				throw new IllegalArgumentException("El archivo especificado no es un archivo excel");
+				LOGGER.info(correlationId + ":::: Proceso Leer excel y registrar tramites. Nro Registro :::: '{}' ", "No se ha encontrado el archivo");
 			}
 			
 			Sheet sheet = workbook.getSheetAt(0);// Obtiene la primera hoja del archivo excel
@@ -143,7 +144,7 @@ public class TramiteBusinessRegisterImp implements TramiteBusinessRegister {
 			
 		} catch (Exception e) {
 			LOGGER.error(correlationId + ":::: Proceso Leer excel y registrar tramites. Error Mensaje :::: '{}' ", e.getMessage());
-			LOGGER.error(e.getLocalizedMessage(), e);
+//			LOGGER.error(e.getLocalizedMessage(), e);
 		}
 		
 		//Renombrar archivo.
